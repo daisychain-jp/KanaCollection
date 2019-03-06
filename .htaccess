@@ -1,0 +1,3 @@
+AddType application/wasm .wasm
+
+AddHandler cgi-script py
