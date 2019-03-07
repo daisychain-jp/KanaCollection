@@ -6,13 +6,18 @@
     <link href="main.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="./vmsg/vmsg.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="index.js"></script>
+    <script type="module">
+      import { Play } from "./main.js";
+      var rec = new Play();
+      rec.start();
+    </script>
   </head>
   <body>
     <h1 id="title">かなコレクション</h1>
     <div>
-      <a class="enter" href="record.html">←</a>
-      <a class="enter" href="play.html">→</a>
+      <table id="main" border="1"></table>
+    </div>
+    <div id="control">
     </div>
   </body>
 </html>

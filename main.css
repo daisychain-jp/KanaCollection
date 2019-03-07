@@ -1,0 +1,32 @@
+a.enter {
+  font-size: 128px;
+  /* text-align: "." center; */
+}
+
+td.cell {
+  width: 50px;
+  height: 50px;
+  font-size: 64px;
+  text-align: "." center;
+}
+
+td.cell.record.active {
+  background-color: #33FFFF;
+}
+
+td.cell.record.inactive {
+  background-color: #666666;
+}
+
+td.cell.play.active {
+  background-color: #FF3333;
+}
+
+td.cell.play.inactive {
+  background-color: #666666;
+}
+
+
+td.open {
+  background-color: White;
+}
