@@ -17,8 +17,8 @@ for (var i = 0; i < HIRAGANA.length; i++) {
     var td = document.createElement("td");
     var moji = dan[j];
     var hex_moji = moji.charCodeAt(0).toString(16);
-    td.addEventListener("click", play_sound);
-    // td.addEventListener("click", record_sound);
+    // td.addEventListener("click", play_sound);
+    td.addEventListener("click", record_sound);
     td.className = "cell inactive";
     td.id = hex_moji;
     td.innerHTML = moji;
@@ -63,18 +63,25 @@ function play_sound(e) {
   }
 }
 
-function upload_sound(e) {
+function record_sound(e) {
   record({wasmURL: "./vmsg/vmsg.wasm"}).then(blob => {
+    var control = document.getElementById("control");
+    while (control.hasChildNodes()) {
+      var first = control.firstChild;
+      control.removeChild(first);
+    }
+
     var url = URL.createObjectURL(blob);
     var preview = document.createElement('audio');
     preview.controls = true;
     preview.src = url;
-    document.body.appendChild(preview);
+    control.appendChild(preview);
 
     var button = document.createElement('button');
     button.setAttribute('type', 'button');
-    button.setAttribute('name', 'aaa');
-    button.setAttribute('value', 'send');
+    button.setAttribute('name', 'upload_button');
+    button.setAttribute('value', 'upload');
+    button.innerHTML = "送信";
     button.addEventListener('click', function(ev) {
       console.log("Recorded MP3", blob);
       var fd = new FormData();
@@ -87,10 +94,21 @@ function upload_sound(e) {
         } else {
           console.log("Error!" + oReq.status);
         }
+        location.reload();
       };
       oReq.open("POST", "http://www.daisychain.jp/~t.inamori/kana/upload.py", true);
       oReq.send(fd);
     });
-    document.body.appendChild(button);
+    control.appendChild(button);
+
+    var cxl_btn = document.createElement('button');
+    cxl_btn.setAttribute('type', 'button');
+    cxl_btn.setAttribute('name', 'cancel_button');
+    cxl_btn.setAttribute('value', 'cancel');
+    cxl_btn.innerHTML = "キャンセル";
+    cxl_btn.addEventListener('click', function(ev) {
+      location.reload();
+    });
+    control.appendChild(cxl_btn);
   });
 }
