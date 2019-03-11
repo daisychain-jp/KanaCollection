@@ -99,7 +99,7 @@ Record.prototype.click = function(e) {
         }
         location.reload();
       };
-      oReq.open("POST", "http://www.daisychain.jp/~t.inamori/kana/upload.py", true);
+      oReq.open("POST", "upload.py", true);
       oReq.send(fd);
     });
     control.appendChild(button);
