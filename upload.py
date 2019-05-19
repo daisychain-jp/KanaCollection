@@ -7,7 +7,7 @@ from datetime import datetime
 form = cgi.FieldStorage()
 
 log_fname = './log/{0}_upload.log'.format(datetime.now().strftime("%Y%m%d_%H%M%S"))
-ffmpeg = '/home/tinamori/usr/bin/ffmpeg'
+ffmpeg = '/usr/local/bin/ffmpeg'
 
 if "voice" in form:
     char = form.getvalue('char')
