@@ -15,8 +15,6 @@ app.get('/kana/audio', function(req, res) {
 
   const fs = require("fs");
   if (fs.existsSync(audio_fname)) {
-    // res.send(audio_fname + '\n');
-    // res.send(audio_fname);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ file: audio_fname, romaji: yomi }));
     console.log(audio_fname);
