@@ -4,19 +4,20 @@ var Main = function() {
   this.mode = "main";
 };
 Main.prototype.start = function() {
-  var cell = [];
-
   var HIRAGANA = [["わ", "ら", "や", "ま", "は", "な", "た", "さ", "か", "あ"],
                   ["を", "り",   "", "み", "ひ", "に", "ち", "し", "き", "い"],
                   ["ん", "る", "ゆ", "む", "ふ", "ぬ", "つ", "す", "く", "う"],
                   [  "", "れ",   "", "め", "へ", "ね", "て", "せ", "け", "え"],
                   [  "", "ろ", "よ", "も", "ほ", "の", "と", "そ", "こ", "お"]];
 
+  var cell = [];
   var main = document.getElementById("main");
+  var xhr = new Array(HIRAGANA.length);
   for (var i = 0; i < HIRAGANA.length; i++) {
     var tr = document.createElement("tr");
-    var dan = HIRAGANA[i];
     cell[i] = [];
+    var dan = HIRAGANA[i];
+    xhr[i] = new Array(dan.length);
     for (var j = 0; j < dan.length; j++) {
       var td = document.createElement("td");
       var moji = dan[j];
@@ -25,39 +26,41 @@ Main.prototype.start = function() {
       // td.addEventListener("click", record_sound);
       td.addEventListener("click", this.click);
       td.className = "cell " + this.mode + " inactive";
-      td.id = hex_moji;
+      td.id = "";
       td.innerHTML = moji;
       td.setAttribute("data-unicode", hex_moji);
       td.y = i;
       td.x = j;
       cell[i][j] = td;
       tr.appendChild(td);
+
+      var that = this;
+
+      (function(x, y) {
+        var moji = dan[j];
+        xhr[x][y] = new XMLHttpRequest();
+
+        xhr[x][y].onreadystatechange = function() {
+          if (xhr[x][y].readyState == 4 && xhr[x][y].status == 200) {
+            var audio_res = xhr[x][y].response;
+
+            cell[x][y].id = audio_res.romaji;
+            cell[x][y].className = "cell " + that.mode + " active";
+
+            var audio = document.createElement("audio");
+            var source = document.createElement("source");
+            audio.id = "audio_" + audio_res.romaji;
+            source.src = audio_res.file;
+            audio.appendChild(source);
+            document.body.appendChild(audio);
+          }
+        };
+        xhr[x][y].responseType = 'json';
+        xhr[x][y].open("GET", "http://www.daisychain.jp:8099/kana/audio?charactor=" + encodeURIComponent(moji), true);
+        xhr[x][y].send(null);
+      })(i, j);
     }
     main.appendChild(tr);
-  }
-
-  var first_ch = "あ".charCodeAt(0);
-  var last_ch = "ん".charCodeAt(0);
-  for (var ch = first_ch; ch <= last_ch; ch++) {
-    var http = new XMLHttpRequest();
-    var that = this;
-    http.onload = function(oEvent) {
-      if (oEvent.target.status != 404) {
-        var splitted_res = oEvent.target.responseURL.split("/");
-        var moji_code = splitted_res[splitted_res.length - 1].substring(0, 4);
-        var td = document.getElementById(moji_code);
-        td.className = "cell " + that.mode + " active";
-
-        var audio = document.createElement("audio");
-        var source = document.createElement("source");
-        audio.id = "audio_" + moji_code;
-        source.src = "./sound/" + moji_code + ".mp3";
-        audio.appendChild(source);
-        document.body.appendChild(audio);
-      }
-    };
-    http.open('HEAD', "./sound/" + ch.toString(16) + ".mp3", true);
-    http.send();
   }
 };
 Main.prototype.click = function(e) {};
