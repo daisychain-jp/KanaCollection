@@ -52,6 +52,4 @@ app.get('/kana/gallery', function(req, res) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify(res_images));
-  // console.log(send_size.toString());
-  // console.log(res_images);
 });

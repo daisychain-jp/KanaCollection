@@ -4,13 +4,21 @@
     <title>ギャラリー</title>
     <meta charset="UTF-8">
     <link href="./css/float.css" rel="stylesheet" type="text/css">
+    <link href="./css/overlay.css" rel="stylesheet" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module">
       import { Gallery } from "./js/gallery.js";
       var gallery = new Gallery();
-      gallery.start();
     </script>
   </head>
   <body>
+    <div id="overlay" class="close">
+      <div class="flex">
+        <div class="overlay-inner">
+          <p id="image_area"></p>
+          <button id="close-btn" class="close" type="button">Close</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
