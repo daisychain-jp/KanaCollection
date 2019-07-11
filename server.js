@@ -6,7 +6,6 @@ const fs = require("fs");
 app.get('/kana/audio', function(req, res) {
   const str = decodeURIComponent(req.query.syllables);
   const execSync = require('child_process').execSync;
-  console.log(str);
 
   var files = [];
   const syllables = str.split(',');

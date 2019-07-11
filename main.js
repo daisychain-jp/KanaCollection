@@ -1,4 +1,4 @@
-import { record } from "./vmsg/vmsg.js";
+import { record } from './node_modules/vmsg/vmsg.js';
 
 var Main = function() {
   this.mode = "main";
