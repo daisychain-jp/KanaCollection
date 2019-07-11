@@ -46,11 +46,13 @@ Main.prototype.start = function() {
 
             cell[x][y].className = "cell " + that.mode + " active";
 
-            var audio = document.createElement("audio");
-            var source = document.createElement("source");
-            source.src = audio_res[0];
-            audio.appendChild(source);
-            cell[x][y].appendChild(audio);
+            if (audio_res[0] != null) {
+              var audio = document.createElement("audio");
+              var source = document.createElement("source");
+              source.src = audio_res[0];
+              audio.appendChild(source);
+              cell[x][y].appendChild(audio);
+            }
           }
         };
         xhr[x][y].responseType = 'json';
@@ -124,7 +126,10 @@ Play.prototype = new Main();
 Play.prototype.click = function(e) {
   var td = e.target;
   if (td.className == "cell play active") {
-    var audio = td.lastChild;
+    var audio = td.getElementsByTagName('audio')[0];
+    if (audio === undefined) {
+      return;
+    }
     audio.load();
     audio.play();
   }
