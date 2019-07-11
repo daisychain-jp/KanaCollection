@@ -44,16 +44,20 @@ export var Gallery = function() {
                 var i = 0;
                 var audio = document.getElementById('audio');
                 while (audio_res[i] == null) {
-                  i++;
-                }
-                if (i >= audio_res.length) {
-                  return;
+                  if (i++ >= audio_res.length) {
+                    return;
+                  }
                 }
                 audio.src = audio_res[i++];
                 audio.load();
                 audio.play();
                 audio.onended = function() {
-                  if(i < audio_res.length && audio_res[i] != null){
+                  if (i < audio_res.length){
+                    while (audio_res[i] == null) {
+                      if (i++ >= audio_res.length) {
+                        return;
+                      }
+                    }
                     audio.src = audio_res[i++];
                     audio.load();
                     audio.play();
