@@ -44,19 +44,17 @@ Main.prototype.start = function() {
           if (xhr[x][y].readyState == 4 && xhr[x][y].status == 200) {
             var audio_res = xhr[x][y].response;
 
-            cell[x][y].id = audio_res.romaji;
             cell[x][y].className = "cell " + that.mode + " active";
 
             var audio = document.createElement("audio");
             var source = document.createElement("source");
-            audio.id = "audio_" + audio_res.romaji;
-            source.src = audio_res.file;
+            source.src = audio_res[0];
             audio.appendChild(source);
-            document.body.appendChild(audio);
+            cell[x][y].appendChild(audio);
           }
         };
         xhr[x][y].responseType = 'json';
-        xhr[x][y].open("GET", "http://www.daisychain.jp:8099/kana/audio?charactor=" + encodeURIComponent(moji), true);
+        xhr[x][y].open("GET", "http://www.daisychain.jp:8099/kana/audio?syllables=" + encodeURIComponent(moji), true);
         xhr[x][y].send(null);
       })(i, j);
     }
@@ -126,7 +124,7 @@ Play.prototype = new Main();
 Play.prototype.click = function(e) {
   var td = e.target;
   if (td.className == "cell play active") {
-    var audio = document.getElementById("audio_" + td.id);
+    var audio = td.lastChild;
     audio.load();
     audio.play();
   }

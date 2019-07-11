@@ -35,6 +35,35 @@ export var Gallery = function() {
           $('body').on('click', '#open-btn' + index.toString(), function() {
             $("#image_area").append('<img class="image" src="' + image['src'] + '"/>');
             $("#overlay").fadeIn();
+
+            var audio_xhr = new XMLHttpRequest();
+            audio_xhr.onreadystatechange = function() {
+              if (audio_xhr.readyState == 4 && audio_xhr.status == 200) {
+                var audio_res = audio_xhr.response;
+
+                var i = 0;
+                var audio = document.getElementById('audio');
+                while (audio_res[i] == null) {
+                  i++;
+                }
+                if (i >= audio_res.length) {
+                  return;
+                }
+                audio.src = audio_res[i++];
+                audio.load();
+                audio.play();
+                audio.onended = function() {
+                  if(i < audio_res.length && audio_res[i] != null){
+                    audio.src = audio_res[i++];
+                    audio.load();
+                    audio.play();
+                  }
+                };
+              }
+            };
+            audio_xhr.responseType = 'json';
+            audio_xhr.open("GET", "http://www.daisychain.jp:8099/kana/audio?syllables=" + encodeURIComponent(image['yomi'].join(',')), true);
+            audio_xhr.send(null);
           });
         });
       });

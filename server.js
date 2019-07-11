@@ -4,21 +4,27 @@ app.listen(8099);
 const fs = require("fs");
 
 app.get('/kana/audio', function(req, res) {
-  var ch = decodeURIComponent(req.query.charactor);
-
+  const str = decodeURIComponent(req.query.syllables);
   const execSync = require('child_process').execSync;
-  const result = execSync('echo ' + ch + ' | kakasi -Ha -i utf-8');
-  const yomi = result.toString().trim();
-  const audio_fname = './sound/' + yomi + '.mp3';
+  console.log(str);
+
+  var files = [];
+  const syllables = str.split(',');
+  for (var i = 0; i < syllables.length; i++) {
+    const result = execSync('echo ' + syllables[i] + ' | kakasi -Ha -i utf-8');
+    const yomi = result.toString().trim();
+    const fname = './sound/' + yomi + '.mp3';
+    if (fs.existsSync(fname)) {
+      files.push(fname);
+    } else {
+      files.push(null);
+    }
+  }
 
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-  if (fs.existsSync(audio_fname)) {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ file: audio_fname, romaji: yomi }));
-    console.log(audio_fname);
-  }
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(files));
 });
 
 app.get('/kana/gallery', function(req, res) {
