@@ -1,4 +1,4 @@
-import * as $ from '../node_modules/jquery/dist/jquery.js';
+import * as $ from '/jquery/dist/jquery.js';
 
 export var Gallery = function() {
   jQuery(function($){
@@ -66,7 +66,7 @@ export var Gallery = function() {
               }
             };
             audio_xhr.responseType = 'json';
-            audio_xhr.open("GET", "http://www.daisychain.jp:8099/kana/audio?syllables=" + encodeURIComponent(image['yomi'].join(',')), true);
+            audio_xhr.open("GET", "/audio?syllables=" + encodeURIComponent(image['yomi'].join(',')), true);
             audio_xhr.send(null);
           });
         });
@@ -74,7 +74,7 @@ export var Gallery = function() {
     }
   };
   xhr.responseType = 'json';
-  xhr.open("GET", "http://www.daisychain.jp:8099/kana/gallery?max_image=6", true);
+  xhr.open("GET", "/gallery?max_image=6", true);
   xhr.send(null);
 };
 Gallery.prototype.start = function() {

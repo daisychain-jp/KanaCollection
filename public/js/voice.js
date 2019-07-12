@@ -1,4 +1,4 @@
-import { record } from './node_modules/vmsg/vmsg.js';
+import { record } from '/vmsg/vmsg.js';
 
 var Main = function() {
   this.mode = "main";
@@ -56,7 +56,7 @@ Main.prototype.start = function() {
           }
         };
         xhr[x][y].responseType = 'json';
-        xhr[x][y].open("GET", "http://www.daisychain.jp:8099/kana/audio?syllables=" + encodeURIComponent(moji), true);
+        xhr[x][y].open("GET", "/audio?syllables=" + encodeURIComponent(moji), true);
         xhr[x][y].send(null);
       })(i, j);
     }
