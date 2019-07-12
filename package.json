@@ -16,6 +16,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "jquery": "^3.4.1",
+    "multer": "^1.4.1",
     "require": "^2.4.20",
     "vmsg": "^0.3.6"
   }

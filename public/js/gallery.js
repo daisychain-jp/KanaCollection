@@ -66,7 +66,7 @@ export var Gallery = function() {
               }
             };
             audio_xhr.responseType = 'json';
-            audio_xhr.open("GET", "/audio?syllables=" + encodeURIComponent(image['yomi'].join(',')), true);
+            audio_xhr.open("GET", "/voice?syllables=" + encodeURIComponent(image['yomi'].join(',')), true);
             audio_xhr.send(null);
           });
         });

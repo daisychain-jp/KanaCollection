@@ -56,7 +56,7 @@ Main.prototype.start = function() {
           }
         };
         xhr[x][y].responseType = 'json';
-        xhr[x][y].open("GET", "/audio?syllables=" + encodeURIComponent(moji), true);
+        xhr[x][y].open('GET', '/voice?syllables=' + encodeURIComponent(moji), true);
         xhr[x][y].send(null);
       })(i, j);
     }
@@ -70,6 +70,7 @@ export var Record = function() {
 };
 Record.prototype = new Main();
 Record.prototype.click = function(e) {
+  var td = e.target;
   record({wasmURL: "./vmsg/vmsg.wasm"}).then(blob => {
     var control = document.getElementById("control");
     while (control.hasChildNodes()) {
@@ -89,10 +90,8 @@ Record.prototype.click = function(e) {
     button.setAttribute('value', 'upload');
     button.innerHTML = "送信";
     button.addEventListener('click', function(ev) {
-      console.log("Recorded MP3", blob);
       var fd = new FormData();
-      fd.append("voice", blob, {type:"application/octet-stream"});
-      fd.append("char", e.target.getAttribute("data-unicode"));
+      fd.append('file', blob);
       var oReq = new XMLHttpRequest();
       oReq.onload = function(oEvent) {
         if (oReq.status == 200) {
@@ -102,7 +101,7 @@ Record.prototype.click = function(e) {
         }
         location.reload();
       };
-      oReq.open("POST", "upload.py", true);
+      oReq.open('POST', '/voice?syllable=' + encodeURIComponent(td.innerText), true);
       oReq.send(fd);
     });
     control.appendChild(button);

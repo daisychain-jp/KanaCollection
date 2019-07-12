@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
+const multer = require('multer');
+const upload = multer();
+const fs = require('fs');
 
 router.get('/', function(req, res, next) {
   res.render('index', { title : 'Express' });
 });
 
-router.get('/audio', function(req, res, next) {
-  const fs = require("fs");
+router.get('/voice', function(req, res, next) {
   const str = decodeURIComponent(req.query.syllables);
   const execSync = require('child_process').execSync;
 
@@ -29,8 +31,33 @@ router.get('/audio', function(req, res, next) {
   res.end(JSON.stringify(files));
 });
 
+router.post('/voice', upload.any(), (req, res) => {
+  const syllable = decodeURIComponent(req.query.syllable);
+  const execSync = require('child_process').execSync;
+  const result = execSync('echo ' + syllable + ' | kakasi -Ha -i utf-8');
+  const romaji = result.toString().trim();
+  const raw_voice = 'public/data/voice/' + romaji + '_raw.mp3';
+  const trim_voice = 'public/data/voice/' + romaji + '.mp3';
+
+  fs.writeFile(raw_voice, req.files[0].buffer, (err) => {
+    if (err) {
+      console.log('Error: ', err);
+      res.status(500).send('An error occurred: ' + err.message);
+    } else {
+      execSync('ffmpeg -y -i ' + raw_voice + ' -af silenceremove=start_periods=1:start_duration=0:start_threshold=-40dB:detection=peak ' + trim_voice);
+      res.status(200).send('ok');
+      fs.unlink(raw_voice, (err) => {
+        if (!err) {
+          console.log('raw file removed');
+        }
+      });
+    }
+  });
+
+});
+
+
 router.get('/gallery', function(req, res, next) {
-  const fs = require("fs");
   const max_image = decodeURIComponent(req.query.max_image);
   const gallery = JSON.parse(fs.readFileSync('public/data/gallery.json', 'utf8'));
   const images = gallery["images"];
