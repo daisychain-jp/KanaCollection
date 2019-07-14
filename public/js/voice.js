@@ -56,11 +56,11 @@ var mainFunc = function(obj) {
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
       if (xhr.readyState == 4 && xhr.status == 200) {
-        var audio_res = xhr.response;
+        var files = xhr.response['files'];
 
         for (var i = 0; i < onTable.length; i++) {
           for (var j = 0; j < dan.length; j++) {
-            var audio_file = audio_res[i * onTable[0].length + j];
+            var audio_file = files[i * onTable[0].length + j];
             if (audio_file != null) {
               cell[i][j].className = "cell " + obj.mode + " active";
 
