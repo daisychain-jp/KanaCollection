@@ -1,5 +1,3 @@
-import { record } from '/vmsg/vmsg.js';
-
 const SEION = [['わ', 'ら', 'や', 'ま', 'は', 'な', 'た', 'さ', 'か', 'あ'],
                ['を', 'り', null, 'み', 'ひ', 'に', 'ち', 'し', 'き', 'い'],
                ['ん', 'る', 'ゆ', 'む', 'ふ', 'ぬ', 'つ', 'す', 'く', 'う'],
@@ -22,10 +20,7 @@ const YOUDAKUON = [['ぴゃ', 'びゃ', 'じゃ', 'ぎゃ'],
                    ['ぴょ', 'びょ', 'じょ', 'ぎょ']];
 // const TOKUSHUON;
 
-var Main = function() {
-  this.mode = "main";
-};
-Main.prototype.start = function() {
+var mainFunc = function(obj) {
   const onTables = [SEION, DAKUON, YOUON, YOUDAKUON];
 
   onTables.forEach(function(onTable) {
@@ -46,18 +41,17 @@ Main.prototype.start = function() {
         tr.appendChild(td);
 
         if (syllable != null) {
-          td.addEventListener('click', this.click);
-          td.className = "cell " + this.mode + " inactive";
+          td.addEventListener('click', obj.clickListener);
+          td.className = "cell " + obj.mode + " inactive";
           td.id = "";
           td.innerText = syllable;
         } else {
           continue;
         }
-        var that = this;
       }
       table.appendChild(tr);
     }
-    tables.appendChild(table);
+    div.appendChild(table);
 
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
@@ -68,7 +62,7 @@ Main.prototype.start = function() {
           for (var j = 0; j < dan.length; j++) {
             var audio_file = audio_res[i * onTable[0].length + j];
             if (audio_file != null) {
-              cell[i][j].className = "cell " + that.mode + " active";
+              cell[i][j].className = "cell " + obj.mode + " active";
 
               var audio = document.createElement("audio");
               var source = document.createElement("source");
@@ -84,74 +78,4 @@ Main.prototype.start = function() {
     xhr.open('GET', '/voice?syllables=' + encodeURIComponent(onTable.join(',')), true);
     xhr.send(null);
   }, this);
-};
-Main.prototype.click = function(e) {};
-
-export var Record = function() {
-  this.mode = "record";
-};
-Record.prototype = new Main();
-Record.prototype.click = function(e) {
-  var td = e.target;
-  record({wasmURL: "./vmsg/vmsg.wasm"}).then(blob => {
-    var control = document.getElementById("control");
-    while (control.hasChildNodes()) {
-      var first = control.firstChild;
-      control.removeChild(first);
-    }
-
-    var url = URL.createObjectURL(blob);
-    var preview = document.createElement('audio');
-    preview.controls = true;
-    preview.src = url;
-    control.appendChild(preview);
-
-    var button = document.createElement('button');
-    button.setAttribute('type', 'button');
-    button.setAttribute('name', 'upload_button');
-    button.setAttribute('value', 'upload');
-    button.innerHTML = "送信";
-    button.addEventListener('click', function(ev) {
-      var fd = new FormData();
-      fd.append('file', blob);
-      var oReq = new XMLHttpRequest();
-      oReq.onload = function(oEvent) {
-        if (oReq.status == 200) {
-          console.log("Uploaded!");
-        } else {
-          console.log("Error!" + oReq.status);
-        }
-        location.reload();
-      };
-      oReq.open('POST', '/voice?syllable=' + encodeURIComponent(td.innerText), true);
-      oReq.send(fd);
-    });
-    control.appendChild(button);
-
-    var cxl_btn = document.createElement('button');
-    cxl_btn.setAttribute('type', 'button');
-    cxl_btn.setAttribute('name', 'cancel_button');
-    cxl_btn.setAttribute('value', 'cancel');
-    cxl_btn.innerHTML = "キャンセル";
-    cxl_btn.addEventListener('click', function(ev) {
-      location.reload();
-    });
-    control.appendChild(cxl_btn);
-  });
-};
-
-export var Play = function() {
-  this.mode = "play";
-};
-Play.prototype = new Main();
-Play.prototype.click = function(e) {
-  var td = e.target;
-  if (td.className == "cell play active") {
-    var audio = td.getElementsByTagName('audio')[0];
-    if (audio === undefined) {
-      return;
-    }
-    audio.load();
-    audio.play();
-  }
 };
