@@ -13,22 +13,66 @@ router.get('/voice', function(req, res, next) {
   const execSync = require('child_process').execSync;
 
   var files = [];
-  const syllables = str.split(',');
-  for (var i = 0; i < syllables.length; i++) {
-    const result = execSync('echo ' + syllables[i] + ' | kakasi -Ha -i utf-8');
-    const yomi = result.toString().trim();
-    const fname = 'data/voice/' + yomi + '.mp3';
-    if (fs.existsSync('public/' + fname)) {
-      files.push(fname);
+  var yomiArr = [];
+  pushRes = function (yomigana, hyojigana = null) {
+    if (yomigana != null) {
+      const romaji = execSync('echo ' + yomigana + ' | kakasi -Ha -Ka -i utf-8').toString().trim();
+      const hiragana = execSync('echo ' + yomigana + ' | kakasi -KH -i utf-8').toString().trim();
+      const fname = 'data/voice/' + romaji + '.mp3';
+      if (fs.existsSync('public/' + fname)) {
+        files.push(fname);
+      } else {
+        files.push(null);
+      }
+      if (hyojigana != null) {
+        yomiArr.push(hyojigana);
+      } else {
+        yomiArr.push(hiragana);
+      }
     } else {
       files.push(null);
+      yomiArr.push(null);
+    }
+  };
+
+  const syllables = str.split(',');
+  for (var i = 0; i < syllables.length; i++) {
+    const syllable = syllables[i];
+    if (syllable == 'ー') {
+      if (i <= 0) {
+        files.push(null);
+        yomiArr.push(null);
+      } else {
+        const prevSyllable = syllables[i - 1];
+        const prevRomajiStr = execSync('echo ' + prevSyllable + ' | kakasi -Ha -Ka -i utf-8').toString().trim();
+        const prevLastRomaji = prevRomajiStr.charAt(prevRomajiStr.length - 1);
+        switch (prevLastRomaji) {
+        case 'a':
+          pushRes('あ', 'ー');
+          break;
+        case 'i':
+          pushRes('い', 'ー');
+          break;
+        case 'u':
+          pushRes('う', 'ー');
+          break;
+        case 'e':
+          pushRes('え', 'ー');
+          break;
+        case 'o':
+          pushRes('お', 'ー');
+          break;
+        default:
+          break;
+        }
+      }
+    } else {
+      pushRes(syllable);
     }
   }
 
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(files));
+  res.end(JSON.stringify({ 'files': files, 'hiragana': yomiArr}));
 });
 
 router.post('/voice', upload.any(), (req, res) => {
@@ -84,8 +128,6 @@ router.get('/gallery', function(req, res, next) {
   }
 
   const res_images = images.slice(0, res_size);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify(res_images));
 });

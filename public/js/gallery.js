@@ -40,25 +40,28 @@ export var Gallery = function() {
             audio_xhr.onreadystatechange = function() {
               if (audio_xhr.readyState == 4 && audio_xhr.status == 200) {
                 var audio_res = audio_xhr.response;
+                const files = audio_res['files'];
+                const hiraganaArr = audio_res['hiragana'];
+                console.log(hiraganaArr);
 
                 var i = 0;
                 var audio = document.getElementById('audio');
-                while (audio_res[i] == null) {
-                  if (i++ >= audio_res.length) {
+                while (files[i] == null) {
+                  if (i++ >= files.length) {
                     return;
                   }
                 }
-                audio.src = audio_res[i++];
+                audio.src = files[i++];
                 audio.load();
                 audio.play();
                 audio.onended = function() {
-                  if (i < audio_res.length){
-                    while (audio_res[i] == null) {
-                      if (i++ >= audio_res.length) {
+                  if (i < files.length){
+                    while (files[i] == null) {
+                      if (i++ >= files.length) {
                         return;
                       }
                     }
-                    audio.src = audio_res[i++];
+                    audio.src = files[i++];
                     audio.load();
                     audio.play();
                   }
@@ -74,7 +77,7 @@ export var Gallery = function() {
     }
   };
   xhr.responseType = 'json';
-  xhr.open("GET", "/gallery?max_image=6", true);
+  xhr.open("GET", "/gallery?max_image=100", true);
   xhr.send(null);
 };
 Gallery.prototype.start = function() {
