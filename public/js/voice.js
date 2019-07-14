@@ -1,67 +1,89 @@
 import { record } from '/vmsg/vmsg.js';
 
+const SEION = [['わ', 'ら', 'や', 'ま', 'は', 'な', 'た', 'さ', 'か', 'あ'],
+               ['を', 'り', null, 'み', 'ひ', 'に', 'ち', 'し', 'き', 'い'],
+               ['ん', 'る', 'ゆ', 'む', 'ふ', 'ぬ', 'つ', 'す', 'く', 'う'],
+               [null, 'れ', null, 'め', 'へ', 'ね', 'て', 'せ', 'け', 'え'],
+               [null, 'ろ', 'よ', 'も', 'ほ', 'の', 'と', 'そ', 'こ', 'お']];
+const DAKUON = [['ぱ', 'ば', 'だ', 'ざ', 'が'],
+                ['ぴ', 'び', 'ぢ', 'じ', 'ぎ'],
+                ['ぷ', 'ぶ', 'づ', 'ず', 'ぐ'],
+                ['ぺ', 'べ', 'で', 'ぜ', 'げ'],
+                ['ぽ', 'ぼ', 'ど', 'ぞ', 'ご']];
+const YOUON = [['りゃ','みゃ','ひゃ','にゃ','ちゃ','しゃ','きゃ'],
+               [null, null, null, null  ,null  ,null  ,null],
+               ['りゅ','みゅ','ひゅ','にゅ','ちゅ','しゅ','きゅ'],
+               [null, null, null, null  ,null  ,null  ,null],
+               ['りょ','みょ','ひょ','にょ','ちょ','しょ','きょ']];
+const YOUDAKUON = [['ぴゃ', 'びゃ', 'じゃ', 'ぎゃ'],
+                   [null,   null,   null,   null],
+                   ['ぴゅ', 'びゅ', 'じゅ', 'ぎゅ'],
+                   [null,   null,   null,   null],
+                   ['ぴょ', 'びょ', 'じょ', 'ぎょ']];
+// const TOKUSHUON;
+
 var Main = function() {
   this.mode = "main";
 };
 Main.prototype.start = function() {
-  var HIRAGANA = [["わ", "ら", "や", "ま", "は", "な", "た", "さ", "か", "あ"],
-                  ["を", "り",   "", "み", "ひ", "に", "ち", "し", "き", "い"],
-                  ["ん", "る", "ゆ", "む", "ふ", "ぬ", "つ", "す", "く", "う"],
-                  [  "", "れ",   "", "め", "へ", "ね", "て", "せ", "け", "え"],
-                  [  "", "ろ", "よ", "も", "ほ", "の", "と", "そ", "こ", "お"]];
+  const onTables = [SEION, DAKUON, YOUON, YOUDAKUON];
 
-  var cell = [];
-  var main = document.getElementById("main");
-  var xhr = new Array(HIRAGANA.length);
-  for (var i = 0; i < HIRAGANA.length; i++) {
-    var tr = document.createElement("tr");
-    cell[i] = [];
-    var dan = HIRAGANA[i];
-    xhr[i] = new Array(dan.length);
-    for (var j = 0; j < dan.length; j++) {
-      var td = document.createElement("td");
-      var moji = dan[j];
-      var hex_moji = moji.charCodeAt(0).toString(16);
-      // td.addEventListener("click", play_sound);
-      // td.addEventListener("click", record_sound);
-      td.addEventListener("click", this.click);
-      td.className = "cell " + this.mode + " inactive";
-      td.id = "";
-      td.innerHTML = moji;
-      td.setAttribute("data-unicode", hex_moji);
-      td.y = i;
-      td.x = j;
-      cell[i][j] = td;
-      tr.appendChild(td);
+  onTables.forEach(function(onTable) {
+    var cell = [];
+    var div = document.getElementById('tables');
+    var table = document.createElement('table');
+    table.className = 'onhyo';
+    for (var i = 0; i < onTable.length; i++) {
+      var tr = document.createElement("tr");
+      cell[i] = [];
+      var dan = onTable[i];
+      for (var j = 0; j < dan.length; j++) {
+        var td = document.createElement("td");
+        var syllable = dan[j];
+        td.y = i;
+        td.x = j;
+        cell[i][j] = td;
+        tr.appendChild(td);
 
-      var that = this;
+        if (syllable != null) {
+          td.addEventListener('click', this.click);
+          td.className = "cell " + this.mode + " inactive";
+          td.id = "";
+          td.innerText = syllable;
+        } else {
+          continue;
+        }
+        var that = this;
+      }
+      table.appendChild(tr);
+    }
+    tables.appendChild(table);
 
-      (function(x, y) {
-        var moji = dan[j];
-        xhr[x][y] = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        var audio_res = xhr.response;
 
-        xhr[x][y].onreadystatechange = function() {
-          if (xhr[x][y].readyState == 4 && xhr[x][y].status == 200) {
-            var audio_res = xhr[x][y].response;
+        for (var i = 0; i < onTable.length; i++) {
+          for (var j = 0; j < dan.length; j++) {
+            var audio_file = audio_res[i * onTable[0].length + j];
+            if (audio_file != null) {
+              cell[i][j].className = "cell " + that.mode + " active";
 
-            cell[x][y].className = "cell " + that.mode + " active";
-
-            if (audio_res[0] != null) {
               var audio = document.createElement("audio");
               var source = document.createElement("source");
-              source.src = audio_res[0];
+              source.src = audio_file;
               audio.appendChild(source);
-              cell[x][y].appendChild(audio);
+              cell[i][j].appendChild(audio);
             }
           }
-        };
-        xhr[x][y].responseType = 'json';
-        xhr[x][y].open('GET', '/voice?syllables=' + encodeURIComponent(moji), true);
-        xhr[x][y].send(null);
-      })(i, j);
-    }
-    main.appendChild(tr);
-  }
+        }
+      }
+    };
+    xhr.responseType = 'json';
+    xhr.open('GET', '/voice?syllables=' + encodeURIComponent(onTable.join(',')), true);
+    xhr.send(null);
+  }, this);
 };
 Main.prototype.click = function(e) {};
 
