@@ -6,20 +6,19 @@
     <link href="./css/float.css" rel="stylesheet" type="text/css">
     <link href="./css/overlay.css" rel="stylesheet" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module">
-      import { Gallery } from "./js/gallery.js";
-      var gallery = new Gallery();
-    </script>
   </head>
   <body>
     <div id="overlay" class="close">
       <div class="flex">
         <div class="overlay-inner">
-          <p id="image_area"></p>
+          <p id="image_area">
+            <div id="kana"/>
+          </p>
           <button id="close-btn" class="close" type="button">Close</button>
         </div>
       </div>
     </div>
-    <audio id="audio"></audio>
+    <audio id="audio"/>
+    <script type="module" src="./js/gallery.js"></script>
   </body>
 </html>

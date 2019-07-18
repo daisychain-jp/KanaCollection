@@ -20,7 +20,7 @@
   background-color:#FFF;
   text-align:center;
 }
-#open-btn, #close-btn{
+.open-btn, #close-btn{
   display:block;
   margin:20px auto;
   padding:10px 30px;
