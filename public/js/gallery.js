@@ -56,12 +56,15 @@ var clickFunc = function(image) {
       audio_xhr.open("GET", "/voice?syllables=" + encodeURIComponent(image['yomi'].join(',')), false);
       audio_xhr.send(null);
       if (audio_xhr.status == 200) {
-        overlayFunc(JSON.parse(audio_xhr.response));
+        const json_res = JSON.parse(audio_xhr.response);
+        // overlayFunc(audio_xhr.response['files'], image['yomi']);
+        overlayFunc(json_res['files'], json_res['hiragana']);
       }
     } else {
       audio_xhr.onreadystatechange = function() {
         if (audio_xhr.readyState == 4 && audio_xhr.status == 200) {
-          overlayFunc(audio_xhr.response);
+          // overlayFunc(audio_xhr.response['files'], image['yomi']);
+          overlayFunc(audio_xhr.response['files'], audio_xhr.response['hiragana']);
         }
       };
       audio_xhr.responseType = 'json';
@@ -72,25 +75,24 @@ var clickFunc = function(image) {
 };
 mainFunc(clickFunc);
 
-var overlayFunc = function(res_json) {
-  const files = res_json['files'];
-  const hiragana = res_json['hiragana'];
-  const hiraganaArr = res_json['hiragana'];
-
+var overlayFunc = function(files, hiragana) {
   jQuery(function($){
     $("#overlay").fadeIn();
   });
 
-  // xxx
-  const kanaDiv = document.getElementById('image_area');
+  const kanaDiv = document.getElementById('kana');
   var kanaTable = document.createElement('table');
-  kanaTable.className = 'disposable';
+  kanaTable.className = 'onhyo disposable';
   kanaDiv.appendChild(kanaTable);
   var tr = document.createElement('tr');
   kanaTable.appendChild(tr);
-  var td = document.createElement('td');
-  td.innerText = res_json['hiragana'].join('');
-  tr.appendChild(td);
+
+  hiragana.forEach(function(hiragana, index){
+    const td = document.createElement('td');
+    td.className = "cell play active";
+    td.innerText = hiragana;
+    tr.appendChild(td);
+  });
 
   var i = 0;
   var audio = document.getElementById('audio');
