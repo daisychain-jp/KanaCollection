@@ -50,71 +50,34 @@ var clickFunc = function(image) {
 
     var audio_xhr = new XMLHttpRequest();
 
-    // TODO: detech whether autoplay is supported and switch procedure using modernizr
-    const platform = window.navigator.platform;
-    if (['iPhone', 'iPad', 'iPod'].indexOf(platform) !== -1) {
-      audio_xhr.open("GET", "/voice?syllables=" + encodeURIComponent(image['yomi'].join(',')), false);
-      audio_xhr.send(null);
-      if (audio_xhr.status == 200) {
-        const json_res = JSON.parse(audio_xhr.response);
-        // overlayFunc(audio_xhr.response['files'], image['yomi']);
-        overlayFunc(json_res['files'], json_res['hiragana']);
-      }
-    } else {
-      audio_xhr.onreadystatechange = function() {
-        if (audio_xhr.readyState == 4 && audio_xhr.status == 200) {
-          // overlayFunc(audio_xhr.response['files'], image['yomi']);
-          overlayFunc(audio_xhr.response['files'], audio_xhr.response['hiragana']);
+    createVoiceTable(image['yomi'], function(table){
+      jQuery(function($){
+        $("#overlay").fadeIn();
+      });
+
+      const kanaDiv = document.getElementById('kana');
+      table.className += ' disposable';
+      kanaDiv.appendChild(table);
+
+      var i = 0;
+      var audio = document.getElementById('audio');
+      var audioCol = table.getElementsByTagName('audio');
+      audioCol.item(i).parentElement.className = 'cell play playing';
+      audio.src = audioCol.item(i++).src;
+      audio.load();
+      audio.play();
+      audio.onended = function() {
+        if (i < audioCol.length){
+          audioCol.item(i-1).parentElement.className = 'cell play active';
+          audioCol.item(i).parentElement.className = 'cell play playing';
+          audio.src = audioCol.item(i++).src;
+          audio.load();
+          audio.play();
+        } else if (i >= audioCol.length){
+          audioCol.item(i-1).parentElement.className = 'cell play active';
         }
       };
-      audio_xhr.responseType = 'json';
-      audio_xhr.open("GET", "/voice?syllables=" + encodeURIComponent(image['yomi'].join(',')), true);
-      audio_xhr.send(null);
-    }
+    });
   });
 };
 mainFunc(clickFunc);
-
-var overlayFunc = function(files, hiragana) {
-  jQuery(function($){
-    $("#overlay").fadeIn();
-  });
-
-  const kanaDiv = document.getElementById('kana');
-  var kanaTable = document.createElement('table');
-  kanaTable.className = 'onhyo disposable';
-  kanaDiv.appendChild(kanaTable);
-  var tr = document.createElement('tr');
-  kanaTable.appendChild(tr);
-
-  hiragana.forEach(function(hiragana, index){
-    const td = document.createElement('td');
-    td.className = "cell play active";
-    td.innerText = hiragana;
-    tr.appendChild(td);
-  });
-
-  var i = 0;
-  var audio = document.getElementById('audio');
-  while (files[i] == null) {
-    if (i++ >= files.length) {
-      return;
-    }
-  }
-  audio.src = files[i++];
-  audio.load();
-  audio.play();
-
-  audio.onended = function() {
-    if (i < files.length){
-      while (files[i] == null) {
-        if (i++ >= files.length) {
-          return;
-        }
-      }
-      audio.src = files[i++];
-      audio.load();
-      audio.play();
-    }
-  };
-};

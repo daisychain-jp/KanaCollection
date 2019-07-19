@@ -49,6 +49,14 @@ var recordClickListener = function(e) {
   });
 };
 
-var recordObj = { 'mode': 'record',
-                  'clickListener': recordClickListener };
-mainFunc(recordObj);
+var recordMain = function () {
+  const onpyoArr = [SEION, DAKUON, YOUON, YOUDAKUON];
+
+  onpyoArr.forEach(function(onpyo) {
+    createVoiceTable(onpyo, function(table){
+      var div = document.getElementById('tables');
+      div.appendChild(table);
+    }, 'record', recordClickListener);
+  });
+};
+recordMain();

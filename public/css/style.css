@@ -28,11 +28,15 @@ td.cell.record.inactive {
 }
 
 td.cell.play.active {
-  background-color: #FF3333;
+  background-color: #7777ff;
 }
 
 td.cell.play.inactive {
-  background-color: #666666;
+  background-color: #00008B;
+}
+
+td.cell.play.playing {
+  background-color: Yellow;
 }
 
 

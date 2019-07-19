@@ -20,62 +20,85 @@ const YOUDAKUON = [['ぴゃ', 'びゃ', 'じゃ', 'ぎゃ'],
                    ['ぴょ', 'びょ', 'じょ', 'ぎょ']];
 // const TOKUSHUON;
 
-var mainFunc = function(obj) {
-  const onTables = [SEION, DAKUON, YOUON, YOUDAKUON];
+var playClickListener = function(e) {
+  var td = e.target;
+  if (td.className == "cell play active") {
+    var audio = td.getElementsByTagName('audio')[0];
+    if (audio === undefined) {
+      return;
+    }
+    audio.onended = function() {
+      audio.parentElement.className = 'cell play active';
+      audio.onended = null;
+    };
+    audio.load();
+    audio.play();
+    audio.parentElement.className = 'cell play playing';
+  }
+};
 
-  onTables.forEach(function(onTable) {
-    var cell = [];
-    var div = document.getElementById('tables');
+var createVoiceTable = function(syllables, callback = null, control = 'play', clickListener = null) {
+  var syllables_2d;
+  if (Array.isArray(syllables[0]) == true) {
+    syllables_2d = syllables;
+  } else {
+    syllables_2d = [syllables];
+  }
+
+  const aFunc = function (files, hiragana) {
     var table = document.createElement('table');
     table.className = 'onhyo';
-    for (var i = 0; i < onTable.length; i++) {
+    for (var i = 0; i < syllables_2d.length; i++) {
       var tr = document.createElement("tr");
-      cell[i] = [];
-      var dan = onTable[i];
-      for (var j = 0; j < dan.length; j++) {
+      for (var j = 0; j < syllables_2d[i].length; j++) {
         var td = document.createElement("td");
-        var syllable = dan[j];
+        tr.appendChild(td);
         td.y = i;
         td.x = j;
-        cell[i][j] = td;
-        tr.appendChild(td);
-
-        if (syllable != null) {
-          td.addEventListener('click', obj.clickListener);
-          td.className = "cell " + obj.mode + " inactive";
-          td.id = "";
-          td.innerText = syllable;
-        } else {
-          continue;
-        }
-      }
-      table.appendChild(tr);
-    }
-    div.appendChild(table);
-
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        var files = xhr.response['files'];
-
-        for (var i = 0; i < onTable.length; i++) {
-          for (var j = 0; j < dan.length; j++) {
-            var audio_file = files[i * onTable[0].length + j];
-            if (audio_file != null) {
-              cell[i][j].className = "cell " + obj.mode + " active";
-
-              var audio = document.createElement("audio");
-              var source = document.createElement("source");
-              source.src = audio_file;
-              audio.appendChild(source);
-              cell[i][j].appendChild(audio);
+        if (syllables_2d[i][j] != null) {
+          td.innerText = syllables_2d[i][j];
+          if (files[i * syllables_2d[0].length + j] != null) {
+            td.className = 'cell ' + control + ' active';
+            if (clickListener !== null) {
+              td.addEventListener('click', clickListener);
+            } else {
+              td.addEventListener('click', playClickListener);
+            }
+            var audio = document.createElement("audio");
+            audio.src = files[i * syllables_2d[0].length + j];
+            td.appendChild(audio);
+          } else {
+            td.className = 'cell ' + control + ' inactive';
+            if (clickListener !== null) {
+              td.addEventListener('click', clickListener);
             }
           }
         }
       }
+      table.appendChild(tr);
+    }
+    callback(table);
+  };
+
+  const audio_xhr = new XMLHttpRequest();
+
+  // TODO: detech whether autoplay is supported and switch procedure using modernizr
+  const platform = window.navigator.platform;
+  if (['iPhone', 'iPad', 'iPod'].indexOf(platform) !== -1) {
+    audio_xhr.open("GET", "/voice?syllables=" + encodeURIComponent(syllables_2d.join(',')), false);
+    audio_xhr.send(null);
+    if (audio_xhr.status == 200) {
+      const json_res = JSON.parse(audio_xhr.response);
+      aFunc(json_res['files'], json_res['hiragana']);
+    }
+  } else {
+    audio_xhr.onreadystatechange = function() {
+      if (audio_xhr.readyState == 4 && audio_xhr.status == 200) {
+        aFunc(audio_xhr.response['files'], audio_xhr.response['hiragana']);
+      }
     };
-    xhr.responseType = 'json';
-    xhr.open('GET', '/voice?syllables=' + encodeURIComponent(onTable.join(',')), true);
-    xhr.send(null);
-  }, this);
+    audio_xhr.responseType = 'json';
+    audio_xhr.open("GET", "/voice?syllables=" + encodeURIComponent(syllables_2d.join(',')), true);
+    audio_xhr.send(null);
+  }
 };
