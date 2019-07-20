@@ -59,8 +59,12 @@ var clickFunc = function(image) {
       table.className += ' disposable';
       kanaDiv.appendChild(table);
 
+      var audio = document.createElement('audio');
+      audio.id = 'voice';
+      audio.className = 'disposable';
+      kanaDiv.appendChild(audio);
+
       var i = 0;
-      var audio = document.getElementById('audio');
       var audioCol = table.getElementsByTagName('audio');
       audioCol.item(i).parentElement.className = 'cell play playing';
       audio.src = audioCol.item(i++).src;
@@ -70,14 +74,49 @@ var clickFunc = function(image) {
         if (i < audioCol.length){
           audioCol.item(i-1).parentElement.className = 'cell play active';
           audioCol.item(i).parentElement.className = 'cell play playing';
-          audio.src = audioCol.item(i++).src;
+          audio.src = audioCol.item(i).src;
           audio.load();
           audio.play();
-        } else if (i >= audioCol.length){
+        } else if (i == audioCol.length){
           audioCol.item(i-1).parentElement.className = 'cell play active';
+          requestTTS(image['name']);
+        } else {
+          audio.pause();
         }
+        i += 1;
       };
     });
   });
 };
+
+var requestTTS = function(str) {
+  const ttsXHR = new XMLHttpRequest();
+  const platform = window.navigator.platform;
+  if (['iPhone', 'iPad', 'iPod'].indexOf(platform) !== -1) {
+    ttsXHR.open("GET", "/voice/tts?str=" + encodeURIComponent(str), false);
+    ttsXHR.send(null);
+    if (ttsXHR.status == 200) {
+      const json_res = JSON.parse(ttsXHR.response);
+      playTTS(json_res['voice']);
+    }
+  } else {
+    ttsXHR.onreadystatechange = function() {
+      if (ttsXHR.readyState == 4 && ttsXHR.status == 200) {
+        playTTS(ttsXHR.response['voice']);
+      }
+    };
+    ttsXHR.responseType = 'json';
+    ttsXHR.open("GET", "/voice/tts?str=" + encodeURIComponent(str), true);
+    ttsXHR.send(null);
+  }
+};
+
+var playTTS = function(voice) {
+  var audio = document.getElementById('voice');
+
+  audio.src = voice;
+  audio.load();
+  audio.play();
+};
+
 mainFunc(clickFunc);
