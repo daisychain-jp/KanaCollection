@@ -3,6 +3,7 @@ var router = express.Router();
 const multer = require('multer');
 const upload = multer();
 const fs = require('fs');
+const path = require('path');
 
 router.get('/', function(req, res, next) {
   res.render('index', { title : 'Express' });
@@ -100,11 +101,15 @@ router.post('/voice', upload.any(), (req, res) => {
 });
 
 router.get('/voice/tts', function(req, res, next) {
+  const ojtBin = path.join(__dirname, '../usr/bin/open_jtalk');
+  const ojtDic = path.join(__dirname, '../usr/share/hts/dic');
+  const ojtVoice = path.join(__dirname, '../usr/share/hts/voice/mei_normal.htsvoice');
+
   const str = decodeURIComponent(req.query.str);
   const execSync = require('child_process').execSync;
   const romaji = execSync('echo ' + str + ' | kakasi -Ha -Ka -Ja -i utf-8').toString().trim();
   const ttsFile = 'data/tts_voice/' + romaji + '.wav';
-  execSync('echo ' + str + ' | open_jtalk -x ~/usr/share/hts/dic -m ~/usr/share/hts/voice/mei_normal.htsvoice -ow public/' + ttsFile);
+  execSync('echo ' + str + ' | ' + ojtBin + ' -x ' + ojtDic + ' -m ' + ojtVoice + ' -ow public/' + ttsFile);
 
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify({ 'voice': ttsFile}));
