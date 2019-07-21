@@ -39,7 +39,7 @@ var mainFunc = function(clickFunc) {
       }
     };
     xhr.responseType = 'json';
-    xhr.open("GET", "/gallery?max_image=100", true);
+    xhr.open("GET", "/images?max_size=100", true);
     xhr.send(null);
   });
 };

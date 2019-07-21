@@ -110,8 +110,8 @@ router.get('/voice/tts', function(req, res, next) {
   res.end(JSON.stringify({ 'voice': ttsFile}));
 });
 
-router.get('/gallery', function(req, res, next) {
-  const max_image = decodeURIComponent(req.query.max_image);
+router.get('/images', function(req, res, next) {
+  const max_image = decodeURIComponent(req.query.max_size);
   const gallery = JSON.parse(fs.readFileSync('public/data/gallery.json', 'utf8'));
   const images = gallery["images"];
 
