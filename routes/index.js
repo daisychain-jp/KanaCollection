@@ -83,13 +83,14 @@ router.post('/voice', upload.any(), (req, res) => {
   const romaji = result.toString().trim();
   const raw_voice = 'public/data/voice/' + romaji + '_raw.mp3';
   const trim_voice = 'public/data/voice/' + romaji + '.mp3';
+  const ffmpegBin = path.join(__dirname, '../usr/bin/ffmpeg');
 
   fs.writeFile(raw_voice, req.files[0].buffer, (err) => {
     if (err) {
       console.log('Error: ', err);
       res.status(500).send('An error occurred: ' + err.message);
     } else {
-      execSync('ffmpeg -y -i ' + raw_voice + ' -af silenceremove=start_periods=1:start_duration=0:start_threshold=-40dB:detection=peak ' + trim_voice);
+      execSync(ffmpegBin + ' -y -i ' + raw_voice + ' -af silenceremove=start_periods=1:start_duration=0:start_threshold=-40dB:detection=peak ' + trim_voice);
       res.status(200).send('ok');
       fs.unlink(raw_voice, (err) => {
         if (!err) {
