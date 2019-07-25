@@ -17,6 +17,7 @@ td.cell {
   height: 50px;
   font-size: 64px;
   text-align: "." center;
+  white-space: nowrap;
 }
 
 td.cell.record.active {
