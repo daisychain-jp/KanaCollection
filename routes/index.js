@@ -31,12 +31,17 @@ router.get('/voice', function(req, res, next) {
         yomiArr.push(hiragana);
       }
     } else {
-      files.push(null);
-      yomiArr.push(null);
+      if (hyojigana != null) {
+        files.push('data/voice/null.mp3');
+        yomiArr.push(hyojigana);
+      } else {
+        files.push(null);
+        yomiArr.push(null);
+      }
     }
   };
 
-  const syllables = str.split(',');
+  const syllables = execSync('echo ' + str + ' | kakasi -KH -i utf-8').toString().trim().split(',');;
   for (var i = 0; i < syllables.length; i++) {
     const syllable = syllables[i];
     if (syllable == 'ー') {
@@ -67,6 +72,8 @@ router.get('/voice', function(req, res, next) {
           break;
         }
       }
+    } else if (syllable == 'っ') {
+      pushRes(null, syllable);
     } else {
       pushRes(syllable);
     }
