@@ -56,7 +56,7 @@ var createVoiceTable = function(syllables, callback = null, control = 'play', cl
         td.y = i;
         td.x = j;
         if (syllables_2d[i][j] != null) {
-          td.innerText = syllables_2d[i][j];
+          td.innerText = hiragana[i * syllables_2d[0].length + j];
           if (files[i * syllables_2d[0].length + j] != null) {
             td.className = 'cell ' + control + ' active';
             if (clickListener !== null) {

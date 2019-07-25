@@ -48,8 +48,6 @@ var clickFunc = function(image) {
   jQuery(function($){
     $("#image_area").append('<img class="disposable" src="' + image['src'] + '"/>');
 
-    var audio_xhr = new XMLHttpRequest();
-
     createVoiceTable(image['yomi'], function(table){
       jQuery(function($){
         $("#overlay").fadeIn();
