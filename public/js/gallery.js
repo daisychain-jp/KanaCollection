@@ -46,7 +46,7 @@ var mainFunc = function(clickFunc) {
 
 var clickFunc = function(image) {
   jQuery(function($){
-    $("#image_area").append('<img class="disposable" src="' + image['src'] + '"/>');
+    $("#image_area").append('<img id="overlay_image" class="disposable" src="' + image['src'] + '"/>');
 
     createVoiceTable(image['yomi'], function(table){
       jQuery(function($){
